@@ -18,9 +18,9 @@ subversion repository. It's written to deploy new versions of Wordpress plugins.
 
 \033[0;34m-n \033[1;32mPlugin name\033[0m What's the name of your plugin?
 \033[0;34m-s \033[1;32mSVN remote\033[0m Where's your SVN repository?
-\033[0;34m-m \033[1;32mSVN message\033[0;33m[optional]\033[0m A message for the subversion commit (default: $SVN_MSG)
-\033[0;34m-u \033[1;32mSVN username\033[0;33m[optional]\033[0m Subversion remote username
-\033[0;34m-p \033[1;32mSVN password\033[0;33m[optional]\033[0m Subversion remote password
+\033[0;34m-m \033[1;32mSVN message \033[0;33m[optional]\033[0m A message for the subversion commit (default: $SVN_MSG)
+\033[0;34m-u \033[1;32mSVN username \033[0;33m[optional]\033[0m Subversion remote username
+\033[0;34m-p \033[1;32mSVN password \033[0;33m[optional]\033[0m Subversion remote password
 \033[0;34m-g \033[1;32mGit remote\033[0m Where's your git repository?
 \033[0;34m-c \033[1;32mGit commit \033[0;33m[optional]\033[0m If you want to commit a specified commit
 "
@@ -93,7 +93,7 @@ GIT_DIR="$PLUGIN_NAME-git"
 echo -e "\tFrom: $GIT_REMOTE"
 if [ -d $GIT_DIR ]; then
 	cd $GIT_DIR
-	git pull -q origin master &
+	git pull -q origin &
 	spinner $! "\t\033[0;34m" " \033[0mPulling in: $GIT_DIR"
 	cd $CURRENT_DIR
 else
@@ -105,7 +105,7 @@ fi
 
 if [ "$GIT_COMMIT" ]; then
 	cd $GIT_DIR;
-	echo -e "\tUsing commit $GIT_COMMIT"
+	echo -e "\tUsing commit: $GIT_COMMIT"
 	git checkout -q $GIT_COMMIT
 	cd $CURRENT_DIR;
 fi
@@ -141,11 +141,18 @@ else
 	spinner $! "\t\033[0;34m" " \033[0mCheckout into: $SVN_DIR"
 fi
 
+# Check if there's already a tag with version
+
+if [ -d "$SVN_DIR/tags/$NEWVERSION1" ]; then
+	echo -e "\tVersion $NEWVERSION1 already exist"
+	exit
+fi
+
 # Copy files from git to svn directories
 
 cd $GIT_DIR
 git checkout-index -q -a -f --prefix=../$SVN_DIR/trunk/ &
-spinner $! "\t\033[0;34m" " \033[0mCopying files to: $SVN_DIR/trunk/"
+spinner $! "\t\033[0;34m" " \033[0mCopying files to: $SVN_DIR/trunk"
 cd $CURRENT_DIR;
 
 # Change to SVN dir and commit changes
