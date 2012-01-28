@@ -185,11 +185,11 @@ if [ "$SVN_PWD" ]; then
 fi
 
 svn stat | grep '^?' | awk '{print $2}' | xargs svn add
-#svn ci $SVN_USR $SVN_PWD -m "$SVN_MSG"
+svn ci $SVN_USR $SVN_PWD -m "$SVN_MSG"
 
 echo -e "Committing new version tag: $NEWVERSION1"
 cd ..
-#svn copy $SVN_REMOTE/trunk $SVN_REMOTE/tags/$NEWVERSION1 $SVN_USR $SVN_PWD -m "Version tag $NEWVERSION1"
+svn copy $SVN_REMOTE/trunk $SVN_REMOTE/tags/$NEWVERSION1 $SVN_USR $SVN_PWD -m "Version tag $NEWVERSION1"
 
 cd $CURRENT_DIR
 
