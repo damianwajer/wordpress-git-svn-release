@@ -30,7 +30,7 @@ subversion repository. It's written to deploy new versions of Wordpress plugins.
 
 spinner() {
 	s='.oOo'
-	ds=`date "+%H:%M:%S"`
+	#ds=`date "+%H:%M:%S"`
 	while [ `ps -p $1 -o pid=` ]; do
 		for (( n=0; n<${#s}; n+=1 )); do
 			if [ `ps -p $1 -o pid=` ]; then
@@ -39,8 +39,9 @@ spinner() {
 			printf "$2${s:$n:1}$3"; sleep 0.1; printf "\r"
 		done
 	done
-	de=`date "+%H:%M:%S"`
-	echo -e "$2# [$ds-$de]$3"
+	#de=`date "+%H:%M:%S"`
+	#echo -e "$2# [$ds-$de]$3"
+	echo -e "$2#$3"
 }
 
 # Gather options and arguments
@@ -59,53 +60,52 @@ while getopts ":n:s:m:u:p:g:c:" opt; do
 	esac
 done
 
-# Check specified options
-
-if [ ! "$PLUGIN_NAME" ]; then
-	help
-	echo "You must specify the plugin's name with -n"
-	exit
-fi
-
-if [ ! "$SVN_REMOTE" ]; then
-	help
-	echo "You must specify the Subversion repository remote URL with -s"
-	exit
-fi
-
-if [ ! "$GIT_REMOTE" ]; then
-	help
-	echo "You must specify the Git repository remote URL with -g"
-	exit
-fi
-
 # Start display what we're doing
 
-echo ".........................................."
-echo
-echo -e "        \033[0;34mDeploying wordpress plugin\033[0m       "
-echo
-echo -e "\tPlugin name: $PLUGIN_NAME"
+echo -e "\033[0;34mDeploying wordpress plugin\033[0m"
+
+# Check plugin name
+
+if [ "$PLUGIN_NAME" ]; then
+	echo -e "Plugin name: $PLUGIN_NAME"
+fi
+
+while [ ! "$PLUGIN_NAME" ]; do
+	read -p "Plugin name: " PLUGIN_NAME
+done
+
+# Check git repository remote
+
+if [ "$GIT_REMOTE" ]; then
+	echo -e "Git repository remote URL: $GIT_REMOTE"
+fi
+
+while [ ! "$GIT_REMOTE" ]; do
+	read -p "Git repository remote URL: " GIT_REMOTE
+
+	if [ ! "$GIT_COMMIT" ]; then
+		read -p "Specify a commit (leave blank for ^HEAD): " GIT_COMMIT
+	fi
+done
 
 # Clone the with git
 
 GIT_DIR="$PLUGIN_NAME-git"
-echo -e "\tFrom: $GIT_REMOTE"
 if [ -d $GIT_DIR ]; then
 	cd $GIT_DIR
 	git pull -q origin &
-	spinner $! "\t\033[0;34m" " \033[0mPulling in: $GIT_DIR"
+	spinner $! "\033[0;34m" " \033[0mPulling in: $GIT_DIR"
 	cd $CURRENT_DIR
 else
 	git clone -q $GIT_REMOTE $GIT_DIR &
-	spinner $! "\t\033[0;34m" " \033[0mCloning into: $GIT_DIR"
+	spinner $! "\033[0;34m" " \033[0mCloning into: $GIT_DIR"
 fi
 
 # Get a specified commit, if there is one
 
 if [ "$GIT_COMMIT" ]; then
 	cd $GIT_DIR;
-	echo -e "\tUsing commit: $GIT_COMMIT"
+	echo -e "Using commit: $GIT_COMMIT"
 	git checkout -q $GIT_COMMIT
 	cd $CURRENT_DIR;
 fi
@@ -116,35 +116,52 @@ if [ -f "$GIT_DIR/readme.txt" ] & [ -f "$GIT_DIR/$PLUGIN_NAME.php" ]; then
 	NEWVERSION1=`grep "^ \?\(* \)\?Stable tag" $GIT_DIR/readme.txt | awk '{ print $NF}'`
 	NEWVERSION2=`grep "^Version" $GIT_DIR/$PLUGIN_NAME.php | awk '{ print $NF}'`
 else
-	echo -e "\tFAIL: Could not find $GIT_DIR/readme.txt and/or $GIT_DIR/$PLUGIN_NAME.php"
+	echo -e "FAIL: Could not find $GIT_DIR/readme.txt and/or $GIT_DIR/$PLUGIN_NAME.php"
 	exit
 fi
 
 if [ "$NEWVERSION1" != "$NEWVERSION2" ]; then
-	echo -e "\tFAIL: Versions don't match - $NEWVERSION1 != $NEWVERSION2"
+	echo -e "FAIL: Versions don't match - $NEWVERSION1 != $NEWVERSION2"
 	exit
 fi
 
-echo -e "\tVersion to deploy: $NEWVERSION1"
+echo -e "Version to deploy: $NEWVERSION1"
+
+# Check svn repository
+
+if [ "$SVN_REMOTE" ]; then
+	echo "Subversion repository remote URL: $SVN_REMOTE"
+fi
+
+while [ ! "$SVN_REMOTE" ]; do
+	read -p "Subversion repository remote URL: " SVN_REMOTE
+
+	if [ ! "$SVN_USR" ]; then
+		read -p "Subversion repository username (optional): " SVN_USR
+	fi
+
+	if [ "$SVN_USR" ] & [ ! "$SVN_PWD" ]; then
+		read -r "Subversion repository password (optional): " SVN_PWD
+	fi
+done
 
 # Checkout the SVN repository
 
-echo -e "\tTo: $SVN_REMOTE"
 SVN_DIR="$PLUGIN_NAME-svn"
 if [ -d "$SVN_DIR" ]; then
 	cd $SVN_DIR;
 	svn --quiet up &
-	spinner $! "\t\033[0;34m" " \033[0mUpdating: $SVN_DIR"
+	spinner $! "\033[0;34m" " \033[0mUpdating: $SVN_DIR"
 	cd $CURRENT_DIR;
 else
 	svn --quiet co $SVN_REMOTE $SVN_DIR &
-	spinner $! "\t\033[0;34m" " \033[0mCheckout into: $SVN_DIR"
+	spinner $! "\033[0;34m" " \033[0mCheckout into: $SVN_DIR"
 fi
 
 # Check if there's already a tag with version
 
 if [ -d "$SVN_DIR/tags/$NEWVERSION1" ]; then
-	echo -e "\tVersion $NEWVERSION1 already exist"
+	echo -e "Version $NEWVERSION1 already exist"
 	exit
 fi
 
@@ -152,12 +169,12 @@ fi
 
 cd $GIT_DIR
 git checkout-index -q -a -f --prefix=../$SVN_DIR/trunk/ &
-spinner $! "\t\033[0;34m" " \033[0mCopying files to: $SVN_DIR/trunk"
+spinner $! "\033[0;34m" " \033[0mCopying files to: $SVN_DIR/trunk"
 cd $CURRENT_DIR;
 
 # Change to SVN dir and commit changes
 
-echo -e "\tCommitting subversion repository's trunk with files copied from git"
+echo -e "Committing subversion repository's trunk with files copied from git"
 cd $SVN_DIR/trunk
 SVN_MSG=$( printf "$SVN_MSG" $NEWVERSION1 )
 if [ "$SVN_USR" ]; then
@@ -168,14 +185,12 @@ if [ "$SVN_PWD" ]; then
 fi
 
 svn stat | grep '^?' | awk '{print $2}' | xargs svn add
-svn ci $SVN_USR $SVN_PWD -m "$SVN_MSG"
+#svn ci $SVN_USR $SVN_PWD -m "$SVN_MSG"
 
-echo -e "\tCommitting new version tag: $NEWVERSION1"
+echo -e "Committing new version tag: $NEWVERSION1"
 cd ..
-svn copy $SVN_REMOTE/trunk $SVN_REMOTE/tags/$NEWVERSION1 $SVN_USR $SVN_PWD -m "Version tag $NEWVERSION1"
+#svn copy $SVN_REMOTE/trunk $SVN_REMOTE/tags/$NEWVERSION1 $SVN_USR $SVN_PWD -m "Version tag $NEWVERSION1"
 
 cd $CURRENT_DIR
 
-echo
-echo ".........................................."
-echo
+echo "COMPLETE"
