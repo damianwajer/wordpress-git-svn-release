@@ -9,6 +9,8 @@ Wordpress Plugin Deployment
 Options
 -------
 
+If no options are specified, the script will prompt for your input.
+
 * -n Plugin name What's the name of your plugin?
 * -s SVN remote Where's your SVN repository?
 * -m SVN message [optional] A message for the subversion commit (default:
