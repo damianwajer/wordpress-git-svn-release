@@ -44,6 +44,16 @@ spinner() {
 	echo -e "$2#$3"
 }
 
+quit() {
+	cd $CURRENT_DIR
+
+	rm -Rf $GIT_DIR &
+	spinner $! "\033[0;34m" " \033[0mRemoving temporary git clone"
+
+	rm -Rf $SVN_DIR &
+	spinner $! "\033[0;34m" " \033[0mRemoving temporary svn checkout"
+}
+
 # Gather options and arguments
 
 while getopts ":n:s:m:u:p:g:c:" opt; do
@@ -90,7 +100,7 @@ done
 
 # Clone the with git
 
-GIT_DIR="$PLUGIN_NAME-git"
+GIT_DIR="/tmp/$PLUGIN_NAME-git"
 if [ -d $GIT_DIR ]; then
 	cd $GIT_DIR
 	git pull -q origin &
@@ -112,16 +122,29 @@ fi
 
 # Check version in readme.txt is the same as plugin file
 
-if [ -f "$GIT_DIR/readme.txt" ] & [ -f "$GIT_DIR/$PLUGIN_NAME.php" ]; then
+PLUGIN_FILE="$GIT_DIR/$PLUGIN_NAME.php"
+
+for FILE in `ls $GIT_DIR/*.php`; do
+	if [ -f "$FILE" ]; then
+		if grep -q "^Plugin Name:" $FILE & grep -q "^Version:" $FILE; then
+			echo -e "Using $FILE"
+			PLUGIN_FILE="$FILE"
+		fi
+	fi
+done
+
+if [ -f "$GIT_DIR/readme.txt" ] & [ -f "$PLUGIN_FILE" ]; then
 	NEWVERSION1=`grep "^ \?\(* \)\?Stable tag" $GIT_DIR/readme.txt | awk '{ print $NF}'`
-	NEWVERSION2=`grep "^Version" $GIT_DIR/$PLUGIN_NAME.php | awk '{ print $NF}'`
+	NEWVERSION2=`grep "^Version" $PLUGIN_FILE | awk '{ print $NF}'`
 else
-	echo -e "FAIL: Could not find $GIT_DIR/readme.txt and/or $GIT_DIR/$PLUGIN_NAME.php"
+	echo -e "FAIL: Could not find $GIT_DIR/readme.txt and/or $PLUGIN_FILE"
+	quit
 	exit
 fi
 
 if [ "$NEWVERSION1" != "$NEWVERSION2" ]; then
 	echo -e "FAIL: Versions don't match - $NEWVERSION1 != $NEWVERSION2"
+	quit
 	exit
 fi
 
@@ -147,7 +170,7 @@ done
 
 # Checkout the SVN repository
 
-SVN_DIR="$PLUGIN_NAME-svn"
+SVN_DIR="/tmp/$PLUGIN_NAME-svn"
 if [ -d "$SVN_DIR" ]; then
 	cd $SVN_DIR;
 	svn --quiet up &
@@ -162,13 +185,14 @@ fi
 
 if [ -d "$SVN_DIR/tags/$NEWVERSION1" ]; then
 	echo -e "Version $NEWVERSION1 already exist"
+	quit
 	exit
 fi
 
 # Copy files from git to svn directories
 
 cd $GIT_DIR
-git checkout-index -q -a -f --prefix=../$SVN_DIR/trunk/ &
+git checkout-index -q -a -f --prefix=$SVN_DIR/trunk/ &
 spinner $! "\033[0;34m" " \033[0mCopying files to: $SVN_DIR/trunk"
 cd $CURRENT_DIR;
 
@@ -191,6 +215,5 @@ echo -e "Committing new version tag: $NEWVERSION1"
 cd ..
 svn copy $SVN_REMOTE/trunk $SVN_REMOTE/tags/$NEWVERSION1 $SVN_USR $SVN_PWD -m "Version tag $NEWVERSION1"
 
-cd $CURRENT_DIR
-
+quit
 echo "COMPLETE"
