@@ -13,7 +13,9 @@ source .wp-release.conf
 [[ -n $SVNUSER ]] || { echo >&2 "ERROR: Subversion username must not be empty."; exit 1; }
 [[ -n $SVNPASS ]] || { echo >&2 "ERROR: Subversion password must not be empty."; exit 1; }
 
-if [ `egrep -l $'\r'\$ $GITPATH/readme.txt` ] || [ `egrep -l $'\r'\$ $PLUGINPATH/$MAINFILE` ]; then echo "STOP! There are files with windows line ending. Please clean this up! Exiting...."; exit 1; fi
+if [ ! -f "$PLUGINPATH/$MAINFILE" ]; then echo "Plugin is not properly developed. Needed file '$PLUGINPATH/$MAINFILE' does not exists. Exiting...."; exit 1; fi
+if [ ! -f "$PLUGINPATH/readme.txt" ]; then echo "Plugin is not properly developed. Needed file '$PLUGINPATH/readme.txt' does not exists. Exiting...."; exit 1; fi
+if [ `egrep -l $'\r'\$ $PLUGINPATH/readme.txt` ] || [ `egrep -l $'\r'\$ $PLUGINPATH/$MAINFILE` ]; then echo "STOP! There are files with windows line ending. Please clean this up! Exiting...."; exit 1; fi
 
 # Initialize variables.
 SVNURL=${SVNURL:="http://plugins.svn.wordpress.org/$SHORTNAME/"}
@@ -74,6 +76,11 @@ $DRYRUN git push origin master --tags
 echo
 echo "Checking out SVN repository in $SVNPATH..."
 $SVNCMD checkout $SVNURL $SVNPATH
+
+if [ -d "tags/$NEWVERSION/" ]; then
+	echo "ERROR: SVN tag $NEWVERSION already exists."
+	exit 1
+fi
 
 echo
 echo "Setting svn:ignore for git and release specific files..."
