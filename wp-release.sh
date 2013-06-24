@@ -13,6 +13,8 @@ source .wp-release.conf
 [[ -n $SVNUSER ]] || { echo >&2 "ERROR: Subversion username must not be empty."; exit 1; }
 [[ -n $SVNPASS ]] || { echo >&2 "ERROR: Subversion password must not be empty."; exit 1; }
 
+if [ `egrep -l $'\r'\$ $GITPATH/readme.txt` ] || [ `egrep -l $'\r'\$ $PLUGINPATH/$MAINFILE` ]; then echo "STOP! There are files with windows line ending. Please clean this up! Exiting...."; exit 1; fi
+
 # Initialize variables.
 SVNURL=${SVNURL:="http://plugins.svn.wordpress.org/$SHORTNAME/"}
 SVNCMD="svn --username=$SVNUSER --password=$SVNPASS"
@@ -79,6 +81,7 @@ svn propset svn:ignore "
 README.md
 .git*
 .wp-release.conf
+banner-*
 " "$SVNPATH/trunk/"
 
 echo
@@ -99,6 +102,13 @@ pushd $SVNPATH > /dev/null
 pushd trunk > /dev/null
 # Add all new files; svn:ignore files are not listed.
 svn status | grep "^?" | awk '{print $2}' | xargs svn add
+
+echo
+echo "Exporting banner images (if any)..."
+if [ -f "$PLUGINPATH/banner-*" ]; then
+	mkdir -p $SVNPATH/assets
+	cp $PLUGINPATH/banner-* $SVNPATH/assets/ 
+fi
 
 # Extra safety net; SVN does not allow to rewrite history.
 echo
