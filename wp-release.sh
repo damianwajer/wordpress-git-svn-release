@@ -11,10 +11,11 @@ source .wp-release.conf
 [[ -e $PLUGINPATH ]] || { echo >&2 "ERROR: Configured plugin path does not exist."; exit 1; }
 [[ -e $PLUGINPATH/$MAINFILE ]] || { echo >&2 "ERROR: Configure main plugin file does not exist."; exit 1; }
 [[ -n $SVNUSER ]] || { echo >&2 "ERROR: Subversion username must not be empty."; exit 1; }
+[[ -n $SVNPASS ]] || { echo >&2 "ERROR: Subversion password must not be empty."; exit 1; }
 
 # Initialize variables.
 SVNURL=${SVNURL:="http://plugins.svn.wordpress.org/$SHORTNAME/"}
-SVNCMD="svn --username=$SVNUSER"
+SVNCMD="svn --username=$SVNUSER --password=$SVNPASS"
 
 if [[ $DRYRUN != 0 ]]; then
 	DRYRUN="echo +"
