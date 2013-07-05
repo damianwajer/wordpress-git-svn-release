@@ -3,8 +3,8 @@
 
 WordPress plugin developers want to use this script, in case
 
-1. you develop and maintain your plugin using Git (e.g., on https://github.com)
-1. you want to maintain and publish releases for your plugin in the WordPress Plugin Directory
+1. you develop and maintain your plugin using Git (e.g., on [github](https://github.com))
+1. you want to maintain and publish releases for your plugin in the [WordPress Plugin Directory](http://wordpress.org/plugins/about/)
 1. you want to automate this process (and stay away from _ugh, Subversion_) as much as possible.
 
 ## Features
@@ -79,13 +79,13 @@ After execution, the new release is effectively published and out of the door; b
 
 ## FAQ
 
-### Why no history in svn?
+#### Why no history in svn?
 
 Because WordPress.org infrastructure maintainers explicitly ask you to omit it.  You're using WordPress.org as a tool for publishing releases only.  If you don't develop on WordPress.org, there's no point in syncing the entire history.
 
 Dump-export replacements for each release is all that you want and need. — This fact inherently eliminates the topic of `git-svn`.
 
-### Can I improve it?
+#### Can I improve it?
 
 Weird question.  Of course, you can! :)  Here's how:
 
