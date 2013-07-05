@@ -14,7 +14,7 @@ source .wp-release.conf
 
 # Initialize variables.
 SVNURL=${SVNURL:="http://plugins.svn.wordpress.org/$SHORTNAME/"}
-SVNCMD="$(which svn) --username=$SVNUSER"
+SVNCMD="svn --username=$SVNUSER"
 
 if [[ $DRYRUN != 0 ]]; then
 	DRYRUN="echo +"
