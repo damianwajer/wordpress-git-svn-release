@@ -1,38 +1,42 @@
 #! /bin/bash
+#
+# Script to deploy from Github to WordPress.org Plugin Repository
 # A modification of Dean Clatworthy's deploy script as found here: https://github.com/deanc/wordpress-plugin-git-svn
 # The difference is that this script lives in the plugin's git repo & doesn't require an existing SVN repo.
+# Source: https://github.com/thenbrent/multisite-user-management/blob/master/deploy.sh
 
-# main config
-PLUGINSLUG="multisite-user-management"
+#prompt for plugin slug
+echo -e "Plugin Slug: \c"
+read PLUGINSLUG
+
+# main config, set off of plugin slug
 CURRENTDIR=`pwd`
-MAINFILE="ms-user-management.php" # this should be the name of your main php file in the wordpress plugin
+CURRENTDIR="$CURRENTDIR/$PLUGINSLUG"
+MAINFILE="$PLUGINSLUG.php" # this should be the name of your main php file in the wordpress plugin
 
 # git config
 GITPATH="$CURRENTDIR/" # this file should be in the base of your git repository
 
 # svn config
 SVNPATH="/tmp/$PLUGINSLUG" # path to a temp SVN repo. No trailing slash required and don't add trunk.
-SVNURL="http://plugins.svn.wordpress.org/multisite-user-management/" # Remote SVN repo on wordpress.org, with no trailing slash
-SVNUSER="thenbrent" # your svn username
-
+SVNURL="http://plugins.svn.wordpress.org/$PLUGINSLUG/" # Remote SVN repo on WordPress.org, with no trailing slash
+SVNUSER="benbalter" # your svn username
 
 # Let's begin...
 echo ".........................................."
 echo 
-echo "Preparing to deploy wordpress plugin"
+echo "Preparing to deploy WordPress plugin"
 echo 
 echo ".........................................."
 echo 
 
-# Check version in readme.txt is the same as plugin file after translating both to unix line breaks to work around grep's failure to identify mac line breaks
-NEWVERSION1=`grep "^Stable tag:" $GITPATH/readme.txt | awk -F' ' '{print $NF}'`
-echo "readme.txt version: $NEWVERSION1"
-NEWVERSION2=`grep "^Version:" $GITPATH/$MAINFILE | awk -F' ' '{print $NF}'`
+# Check version in readme.txt is the same as plugin file
+NEWVERSION1=`grep "^Stable tag" $GITPATH/readme.txt | awk -F' ' '{print $3}'`
+echo "readme version: $NEWVERSION1"
+NEWVERSION2=`grep "^Version" $GITPATH/$MAINFILE | awk -F' ' '{print $2}'`
 echo "$MAINFILE version: $NEWVERSION2"
 
-if [ "$NEWVERSION1" != "$NEWVERSION2" ]; then echo "Version in readme.txt & $MAINFILE don't match. Exiting...."; exit 1; fi
-
-echo "Versions match in readme.txt and $MAINFILE. Let's proceed..."
+if [ "$NEWVERSION1" != "$NEWVERSION2" ]; then echo "Versions don't match. Exiting...."; exit 1; fi
 
 if git show-ref --tags --quiet --verify -- "refs/tags/$NEWVERSION1"
 	then 
@@ -58,14 +62,24 @@ echo
 echo "Creating local copy of SVN repo ..."
 svn co $SVNURL $SVNPATH
 
-echo "Exporting the HEAD of master from git to the trunk of SVN"
-git checkout-index -a -f --prefix=$SVNPATH/trunk/
-
 echo "Ignoring github specific files and deployment script"
 svn propset svn:ignore "deploy.sh
 README.md
 .git
 .gitignore" "$SVNPATH/trunk/"
+
+#export git -> SVN
+echo "Exporting the HEAD of master from git to the trunk of SVN"
+git checkout-index -a -f --prefix=$SVNPATH/trunk/
+
+#if submodule exist, recursively check out their indexes
+if [ -f ".gitmodules" ]
+then
+echo "Exporting the HEAD of each submodule from git to the trunk of SVN"
+git submodule init
+git submodule update
+git submodule foreach --recursive 'git checkout-index -a -f --prefix=$SVNPATH/trunk/$path/'
+fi
 
 echo "Changing directory to SVN and committing to trunk"
 cd $SVNPATH/trunk/
