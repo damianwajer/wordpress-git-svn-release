@@ -92,6 +92,12 @@ if [ -f ".gitmodules" ]; then
 	git submodule foreach --recursive 'git checkout-index --all --force --prefix=$SVNPATH/trunk/$path/'
 fi
 
+echo "Moving assets-wp-repo"
+mkdir $SVNPATH/assets/
+mv $SVNPATH/trunk/assets-wp-repo/* $SVNPATH/assets/
+svn add $SVNPATH/assets/
+svn delete $SVNPATH/trunk/assets-wp-repo
+
 echo
 echo "Exporting to SVN..."
 pushd $SVNPATH > /dev/null
@@ -117,6 +123,11 @@ svn copy trunk tags/$NEWVERSION/
 pushd tags/$NEWVERSION > /dev/null
 $DRYRUN $SVNCMD commit -m "Tagging release $NEWVERSION."
 popd > /dev/null
+
+echo "Updating WP plugin repo assets & committing"
+pushd assets
+$SVNCMD commit -m "Updating wp-repo-assets"
+popd
 
 echo "Done."
 popd > /dev/null
