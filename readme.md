@@ -17,13 +17,32 @@ Use
 
 Place in parent directory (e.g. wp-content/plugins/) and run as ./deploy.sh (may need to chmod 0755 first)
 
+
+Note
+-----
+
+This deployment script does everything. Once it's run your plugin will be updated on WordPress and pushed out to all your users.
+
+
 History
 -------
 
-Adapted from https://github.com/thenbrent/multisite-user-management/blob/master/deploy.sh
+Open-source at its worst. ;)  To recap:
 
-thenbrent's version was a modification of Dean Clatworthy's deploy script found at
-https://github.com/deanc/wordpress-plugin-git-svn
+* Originally authored by @deanc  
+  https://github.com/deanc/wordpress-plugin-git-svn
+* Shell-ized by @spurge  
+  https://github.com/spurge/wordpress-plugin-git-svn
+* Improved by @thenbrent (unmergeable)  
+  https://github.com/thenbrent/multisite-user-management/blob/master/deploy.sh
+    * Further improved by @BFTrick  
+      https://gist.github.com/BFTrick/3767319  
+      cf. http://speakinginbytes.com/2012/10/wordpress-plugin-deployment-script/
+    * Significantly improved by @benbalter  
+      https://github.com/benbalter/Github-to-WordPress-Plugin-Directory-Deployment-Script
+        * Slightly hardened by @cubetech  
+          https://github.com/cubetech/wordpress.plugin-deployment-script.git
+
 
 Changes
 -------
@@ -34,7 +53,3 @@ Changes
 * SVN 1.6 compatibility (svn propset before exporting from git)
 * Capitalized the "P" in WordPress
 
-Note
------
-
-This deployment script does everything. Once it's run your plugin will be updated on WordPress and pushed out to all your users. 
