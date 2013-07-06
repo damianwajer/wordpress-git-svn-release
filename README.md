@@ -110,7 +110,7 @@ Weird question.  Of course, you can! :)  Here's how:
 * Brent Shepherd, [@thenbrent](https://github.com/thenbrent/multisite-user-management/blob/master/deploy.sh)
 * Patrick Rauland, [@BFTrick](https://gist.github.com/BFTrick/3767319)
 * Ben Balter, [@benbalter](https://github.com/benbalter/Github-to-WordPress-Plugin-Directory-Deployment-Script)
-* Christoph S. Ackermann, [@cubetech](https://github.com/cubetech/wordpress.plugin-deployment-script.git)
+* Christoph S. Ackermann, [@acki](https://github.com/cubetech/wordpress.plugin-deployment-script.git)
 * Daniel F. Kudwien, [@sun](https://github.com/sun/wordpress-git-svn-release)
 
 
