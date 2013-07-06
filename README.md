@@ -93,9 +93,9 @@ After execution, the new release is effectively published and out of the door; b
 
 Because WordPress.org infrastructure maintainers explicitly ask you to omit it.  You're using WordPress.org as a tool for publishing releases only.  If you don't develop on WordPress.org, there's no point in syncing the entire history.
 
-Dump-export replacements for each release is all that you want and need. — This fact inherently eliminates the topic of `git-svn`.
+Dump-export replacements for each release is all you want and need. — This fact inherently eliminates the topic of `git-svn`.
 
-#### Can I improve it?
+#### Can I help to improve this?
 
 Weird question.  Of course, you can! :)  Here's how:
 
@@ -106,33 +106,14 @@ Weird question.  Of course, you can! :)  Here's how:
 
 ## Credits
 
-* Daniel F. Kudwien (@sun)
-* Ben Balter (@benbalter)
-* Brent Shepherd (@thenbrent)
-* Dean Clatworthy (@deanc)
-
-
-### History
-
-Open-source at its worst. ;)  To recap:
-
-* Originally authored by @deanc  
-  https://github.com/deanc/wordpress-plugin-git-svn
-* Shell-ized by @spurge  
-  https://github.com/spurge/wordpress-plugin-git-svn
-* Improved by @thenbrent (unmergeable)  
-  https://github.com/thenbrent/multisite-user-management/blob/master/deploy.sh
-    * Further improved by @BFTrick  
-      https://gist.github.com/BFTrick/3767319  
-      cf. http://speakinginbytes.com/2012/10/wordpress-plugin-deployment-script/
-    * Significantly improved by @benbalter  
-      https://github.com/benbalter/Github-to-WordPress-Plugin-Directory-Deployment-Script
-        * Slightly hardened by @cubetech  
-          https://github.com/cubetech/wordpress.plugin-deployment-script.git
-* Reviewed, replayed, merged history and revamped by @sun  
-  https://github.com/sun/wordpress-git-svn-release
+* Dean Clatworthy, [@deanc](https://github.com/deanc/wordpress-plugin-git-svn)
+* Brent Shepherd, [@thenbrent](https://github.com/thenbrent/multisite-user-management/blob/master/deploy.sh)
+* Patrick Rauland, [@BFTrick](https://gist.github.com/BFTrick/3767319)
+* Ben Balter, [@benbalter](https://github.com/benbalter/Github-to-WordPress-Plugin-Directory-Deployment-Script)
+* Christoph S. Ackermann, [@cubetech](https://github.com/cubetech/wordpress.plugin-deployment-script.git)
+* Daniel F. Kudwien, [@sun](https://github.com/sun/wordpress-git-svn-release)
 
 
 ## License
 
-No author ever specified a license; the most permissive MIT license is assumed.
+None of the authors ever specified a license; the most permissive MIT license is assumed.
