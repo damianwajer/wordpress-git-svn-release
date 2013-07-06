@@ -113,7 +113,7 @@ $DRYRUN $SVNCMD commit -m "Preparing release $NEWVERSION."
 echo
 echo "Creating and committing SVN tag..."
 popd > /dev/null
-svn copy trunk/ tags/$NEWVERSION/
+svn copy trunk tags/$NEWVERSION/
 pushd tags/$NEWVERSION > /dev/null
 $DRYRUN $SVNCMD commit -m "Tagging release $NEWVERSION."
 popd > /dev/null
