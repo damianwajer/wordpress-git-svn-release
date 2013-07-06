@@ -46,6 +46,16 @@ For example, a typical setup would look like this:
       
       (conf)       /var/www/mydevsite/wp-content/plugins/myplugin/.wp-release.conf
 
+#### Windows
+
+_Harder._  As usual.  Try this:
+
+1. Start the mingw32 bash shell (assuming [TortoiseGit](http://code.google.com/p/tortoisegit/)) or [Cygwin](http://www.cygwin.com/) bash shell.
+1. Change to your plugin directory.
+1. Execute the script via `/c/path/to/wp-release/wp-release.sh`
+
+Ideas and improvements very welcome.
+
 
 ## Usage
 
