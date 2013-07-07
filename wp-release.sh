@@ -82,6 +82,10 @@ README.md
 
 echo
 echo "Exporting git HEAD of master to SVN trunk..."
+
+# Delete existing files to capture deleted files.
+find $SVNPATH/trunk/ -type f -exec rm {} \;
+# Export current files.
 git checkout-index --all --force --prefix=$SVNPATH/trunk/
 
 # Recursively check out submodules, if any.
@@ -96,8 +100,14 @@ echo
 echo "Exporting to SVN..."
 pushd $SVNPATH > /dev/null
 pushd trunk > /dev/null
-# Add all new files; svn:ignore files are not listed.
-svn status | grep "^?" | awk '{print $2}' | xargs svn add
+
+# Note: On Windows, svn status outputs backslashes instead of slashes.
+
+# Delete missing/deleted files.
+svn status | grep "^!" | awk '{gsub("\\\\", "/", $2); print $2}' | xargs svn delete
+# Add new files.
+# svn:ignore files are not listed.
+svn status | grep "^?" | awk '{gsub("\\\\", "/", $2); print $2}' | xargs svn add
 
 # Extra safety net; SVN does not allow to rewrite history.
 echo
@@ -113,7 +123,7 @@ $DRYRUN $SVNCMD commit -m "Preparing release $NEWVERSION."
 echo
 echo "Creating and committing SVN tag..."
 popd > /dev/null
-svn copy trunk tags/$NEWVERSION/
+svn copy trunk tags/$NEWVERSION
 pushd tags/$NEWVERSION > /dev/null
 $DRYRUN $SVNCMD commit -m "Tagging release $NEWVERSION."
 popd > /dev/null
