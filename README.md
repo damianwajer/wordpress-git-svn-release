@@ -26,11 +26,7 @@ WordPress plugin developers want to use this script, in case
 
         chmod 755 /usr/local/bin/wp-release/wp-release.sh
 
-1. Optional: Make the script available in a directory of your shell environment `PATH`; e.g.,
-
-        ln -s /usr/local/bin/wp-release/wp-release.sh /usr/local/bin/wp-release
-
-1. Copy the included `.wp-release.conf` file into your plugin directory; e.g.,
+1. Copy the `.wp-release.conf` template file into your plugin directory; e.g.,
 
         cp /usr/local/bin/wp-release/.wp-release.conf /path/to/myplugin/.wp-release.conf
 
@@ -38,6 +34,10 @@ WordPress plugin developers want to use this script, in case
 
         git add .wp-release.conf
         git commit
+
+1. Optional: Make the script available in a directory of your shell environment `PATH`; e.g.,
+
+        ln -s /usr/local/bin/wp-release/wp-release.sh /usr/local/bin/wp-release
 
 For example, a typical setup would look like this:
 
@@ -50,7 +50,7 @@ For example, a typical setup would look like this:
 
 _Harder._  As usual.  Try this:
 
-1. Start the mingw32 bash shell (assuming [TortoiseGit](http://code.google.com/p/tortoisegit/)) or [Cygwin](http://www.cygwin.com/) bash shell.
+1. Start the mingw32/bash shell (assuming [TortoiseGit](http://code.google.com/p/tortoisegit/)) or [Cygwin](http://www.cygwin.com/) bash shell.
 1. Change to your plugin directory.
 1. Execute the script via `/c/path/to/wp-release/wp-release.sh`
 
@@ -63,7 +63,11 @@ Ideas and improvements very welcome.
 
          $ cd /var/www/mydevsite/wp-content/plugins/myplugin
 
-1. Prepare the new release version in `readme.txt` and your plugin's main PHP file.
+1. Prepare the changelog for the new release in `readme.txt`.
+
+         $ vi readme.txt
+
+1. Prepare the new release version (e.g., `1.0`) in `readme.txt` and your plugin's main PHP file.
 
          $ vi readme.txt
          $ vi myplugin.php
@@ -72,19 +76,24 @@ Ideas and improvements very welcome.
 
          $ wp-release.sh
 
+    Doing so will:
 
-Doing so will:
+    1. Validate your `.wp-release.conf` file.
+    1. Verify whether versions in `readme.txt` and the plugin's PHP header match.
+    1. Validate that the specified version does not exist as tag yet.
+    1. Ask you to review & commit the changes to git.
+    1. Check out the WordPress subversion repository.
+    1. Dump-export the code of the git tag into svn trunk.
+    1. Ask you to confirm the changes to svn.
+    1. Commit the changes + new tag to the WordPress Plugin Directory.
 
-1. Validate your config file.
-1. Verify whether versions in `readme.txt` and the plugin's PHP header match.
-1. Validate that the specified version does not exist as tag yet.
-1. Ask you to review & commit the changes to git.
-1. Check out the WordPress subversion repository.
-1. Dump-export the code of the git tag into svn trunk.
-1. Ask you to confirm the changes to svn.
-1. Commit the changes + new tag to the WordPress Plugin Directory.
+    After execution, the new release is effectively published and out of the door; both in git as well as on WordPress.org.
 
-After execution, the new release is effectively published and out of the door; both in git as well as on WordPress.org.
+1. Change the version to e.g. `1.1-dev` in your plugin's main PHP file.
+
+         $ vi myplugin.php
+
+1. Commit the new development version to git, so as to ensure that all users of it can be identified.
 
 
 ## FAQ
