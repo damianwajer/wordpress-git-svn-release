@@ -52,6 +52,11 @@ echo
 $DRYRUN git commit -pem "Preparing release $NEWVERSION."
 
 echo
+echo -e "Ready to tag release in git? (Y/n) [n] \c"
+read CONFIRMED
+[[ $CONFIRMED == "Y" ]] || { echo "Aborted."; exit 1; }
+
+echo
 echo "Tagging release in git..."
 $DRYRUN git tag -a "$NEWVERSION" -m "Tagging release $NEWVERSION."
 
