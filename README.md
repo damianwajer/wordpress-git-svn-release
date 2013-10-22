@@ -89,11 +89,38 @@ Ideas and improvements very welcome.
 
     After execution, the new release is effectively published and out of the door; both in git as well as on WordPress.org.
 
-1. Change the version to e.g. `1.1-dev` in your plugin's main PHP file.
+### Post-release steps
 
-         $ vi myplugin.php
+Bump the version to e.g. `1.1-dev` in your plugin's main PHP file and commit the new development version to git, so as to ensure that all users of it can be identified:
 
-1. Commit the new development version to git, so as to ensure that all users of it can be identified.
+```diff
+diff --git a/myplugin.php b/myplugin.php
+index 8656659..f83492c 100644
+--- a/myplugin.php
++++ b/myplugin.php
+@@ -3,7 +3,7 @@
+ /*
+   Plugin Name: My Plugin
+   Plugin URI: https://example.com
+-  Version: 1.0
++  Version: 1.1-dev
+   Text Domain: myplugin
+   Description: ...
+   Author: ...
+diff --git a/readme.txt b/readme.txt
+index 4775c82..c2fa408 100644
+--- a/readme.txt
++++ b/readme.txt
+@@ -146,6 +146,9 @@
+ 
+ == Changelog ==
+ 
++= 1.1 =
++
++
+ = 1.0 =
+ 2013-10-22
+```
 
 
 ## FAQ
