@@ -23,8 +23,10 @@ else
 fi
 
 # Output header.
+echo
 echo "Project: $SHORTNAME"
 echo "Source:  $PLUGINPATH"
+echo "Workdir: $SVNPATH"
 echo "Target:  $SVNURL"
 echo
 
@@ -41,35 +43,34 @@ if [ "$NEWVERSION" != "$READMEVERSION" ]; then
 fi
 
 if git show-ref --tags --quiet --verify -- "refs/tags/$NEWVERSION"; then
-	echo >&2 "ERROR: git tag $NEWVERSION already exists.";
-	exit 1;
+	echo -e "WARNING: git tag $NEWVERSION already exists.  Continue without git changes? (Y/n) [n] \c"
+	read CONFIRMED
+	[[ $CONFIRMED == "Y" ]] || { echo "Aborted."; exit 1; }
+else
+	# Review and confirm changes to be committed/released.
+	echo "Review and confirm changes to be committed/released:"
+	echo
+	$DRYRUN git commit -pem "Preparing release $NEWVERSION."
+
+	echo
+	echo -e "Ready to tag release in git? (Y/n) [n] \c"
+	read CONFIRMED
+	[[ $CONFIRMED == "Y" ]] || { echo "Aborted."; exit 1; }
+
+	echo
+	echo "Tagging release in git..."
+	$DRYRUN git tag -a "$NEWVERSION" -m "Tagging release $NEWVERSION."
+
+	# Safety net; pushing tags to the public is ultimate.
+	echo
+	echo -e "Ready to publish release to git? (Y/n) [n] \c"
+	read CONFIRMED
+	[[ $CONFIRMED == "Y" ]] || { echo "Aborted."; exit 1; }
+
+	echo
+	echo "Pushing master to origin, including tags..."
+	$DRYRUN git push origin master --tags
 fi
-
-
-# Review and confirm changes to be committed/released.
-echo "Review and confirm changes to be committed/released:"
-echo
-$DRYRUN git commit -pem "Preparing release $NEWVERSION."
-
-echo
-echo -e "Ready to tag release in git? (Y/n) [n] \c"
-read CONFIRMED
-[[ $CONFIRMED == "Y" ]] || { echo "Aborted."; exit 1; }
-
-echo
-echo "Tagging release in git..."
-$DRYRUN git tag -a "$NEWVERSION" -m "Tagging release $NEWVERSION."
-
-
-# Safety net; pushing tags to the public is ultimate.
-echo
-echo -e "Ready to publish release to git? (Y/n) [n] \c"
-read CONFIRMED
-[[ $CONFIRMED == "Y" ]] || { echo "Aborted."; exit 1; }
-
-echo
-echo "Pushing master to origin, including tags..."
-$DRYRUN git push origin master --tags
 
 
 # Begin Subversion dump-export process.
@@ -89,7 +90,7 @@ echo
 echo "Exporting git HEAD of master to SVN trunk..."
 
 # Delete existing files to capture deleted files.
-find $SVNPATH/trunk/ -type f -exec rm {} \;
+find $SVNPATH/trunk/ -type f -exec rm '{}' ';'
 # Export current files.
 git checkout-index --all --force --prefix=$SVNPATH/trunk/
 
@@ -109,10 +110,10 @@ pushd trunk > /dev/null
 # Note: On Windows, svn status outputs backslashes instead of slashes.
 
 # Delete missing/deleted files.
-svn status | grep "^!" | awk '{gsub("\\\\", "/", $2); print $2}' | xargs svn delete
+svn status | grep "^!" | awk '{gsub(":\\\\", "/", $2); gsub("\\\\", "/", $2); print $2}' | xargs svn delete
 # Add new files.
 # svn:ignore files are not listed.
-svn status | grep "^?" | awk '{gsub("\\\\", "/", $2); print $2}' | xargs svn add
+svn status | grep "^?" | awk '{gsub(":\\\\", "/", $2); gsub("\\\\", "/", $2); print $2}' | xargs svn add
 
 # Extra safety net; SVN does not allow to rewrite history.
 echo
